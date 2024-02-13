@@ -1,5 +1,7 @@
 # RC2014 MS BASIC v4.7, (C) 1978 Microsoft
 
+This is binary compatible port of https://github.com/feilipu/NASCOM_BASIC_4.7/tree/master/rc2014_NascomBasic32k to GNU AS.
+
 This ROM works with the __Mini__, __Micro__, and __Classic__ versions of the RC2014, with 32k of RAM. This is the ROM to choose if you want fast I/O from a standard RC2014, together with the capability to upload and run C or assembly programs from within MS Basic.
 
 ACIA 6850 interrupt driven serial I/O to run modified NASCOM Microsoft Basic 4.7. The receive interface has a 255 byte software buffer, together with highly optimised buffer management supporting the 68C50 ACIA receive double buffer. Receive hardware (RTS) flow control is provided. The transmit interface is also buffered, with direct cut-through when the 63 byte software buffer is empty, to ensure that the CPU is not held in wait state during serial transmission. Use 115200 baud with 8n2.
@@ -109,6 +111,18 @@ Issuing the `RESET` keyword will clear the RC2014 RAM, and provide an option to 
 The standard `WIDTH` statement has been extended to support setting the comma column screen width using `WIDTH I,J` where `I` is the screen width, and `J` is the comma column screen width.
 
 # Credits
+
+This version is rewrite of @feilipu version to GNU AS. Original can be found on
+
+https://github.com/RC2014Z80/RC2014/tree/master/ROMs/HexLoadr
+
+and 
+
+https://github.com/feilipu/NASCOM_BASIC_4.7/tree/master/rc2014_NascomBasic32k
+
+It only differs in README.md file as of now.
+
+---
 
 Derived from the work of @fbergama and @foxweb at RC2014.
 
