@@ -36,3 +36,7 @@ jobs:
         name: rom.bin
     - name: Test
       run: ls -l
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: "rom.bin"
