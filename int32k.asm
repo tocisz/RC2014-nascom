@@ -39,6 +39,13 @@
 .global RST_10
 .global INT_INT
 
+RST_00 = INIT
+RST_08 = TXA
+RST_10 = RXA
+INT_INT = acia_int
+
+; ACIA 68B50 Register Mnemonics
+
 SER_CTRL_ADDR   =   $80    ; Address of Control Register (write only)
 SER_STATUS_ADDR =   $80    ; Address of Status Register (read only)
 SER_DATA_ADDR   =   $81    ; Address of Data Register
@@ -87,7 +94,6 @@ ACIA_CONFIG_DEFAULT = SER_REI|SER_TDI_RTS0|SER_8N2|SER_CLK_DIV_64
 ;------------------------------------------------------------------------------
 .section acia_int              ; ORG $0070
 
-INT_INT:
 acia_int:
         push af
         push hl
@@ -175,7 +181,6 @@ acia_txa_end:
 ;------------------------------------------------------------------------------
 .section acia_rxa                    ; ORG $00D8
 
-RST_10:
 RXA:
         ld a,(serRxBufUsed)         ; get the number of bytes in the Rx buffer
         or a                        ; see if there are zero bytes available
@@ -209,7 +214,6 @@ rxa_get_byte:
 ;------------------------------------------------------------------------------
 .section acia_txa                    ; ORG $0100
 
-RST_08:
 TXA:                                ; output a character in A via ACIA:
         push hl                     ; store HL so we don't clobber it
         ld l,a                      ; store Tx character
@@ -269,7 +273,6 @@ txa_buffer_out:
 MEM_ERR:
         LD L,A                      ; preserve the error byte
         DEFB 01H                    ; skip "LD L,BEL"
-RST_00:
 INIT:
         LD L,BEL                    ; prepare a BEL, to indicate normal boot
 

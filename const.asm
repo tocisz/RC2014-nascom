@@ -3,8 +3,6 @@
 ; Some definitions used with the RC2014 on-board peripherals:
 ;
 
-; ACIA 68B50 Register Mnemonics
-
 ; General TTY
 
 .global CTRLC
