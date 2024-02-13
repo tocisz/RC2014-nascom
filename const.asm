@@ -12,6 +12,7 @@
 .global BEL
 .global BKSP
 .global LF
+.global FF
 .global CS
 .global CR
 .global CTRLO
@@ -27,6 +28,7 @@ CTRLG           =    07H     ; Control "G"
 BEL             =    07H     ; Bell
 BKSP            =    08H     ; Back space
 LF              =    0AH     ; Line feed
+FF              =    0CH     ; Form feed
 CS              =    0CH     ; Clear screen
 CR              =    0DH     ; Carriage return
 CTRLO           =    0FH     ; Control "O"

@@ -2,7 +2,7 @@ ASSEMBLER = z80-unknown-coff-as
 LINKER = z80-unknown-coff-ld
 OBJCOPY = z80-unknown-coff-objcopy
 
-ASFLAGS = -a
+ASFLAGS = -a -march=z80
 LDFLAGS =  
 
 SRC_ASM := $(wildcard *.asm)
