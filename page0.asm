@@ -8,15 +8,14 @@
 ;
 ; https://feilipu.me/
 ;
-
 ;==============================================================================
-;
 
+.section .v_rst
 ;==============================================================================
 ;
 ; Z80 INTERRUPT ORIGINATING VECTOR TABLE
 ;
-.section .v_rst
+;==============================================================================
 
 ;------------------------------------------------------------------------------
 ; RST 00 - RESET / TRAP
@@ -59,12 +58,13 @@
 .org     0038H, 0xFF
                 JP      INT_INT0_ADDR
 
+.section         .v_nmi
 ;------------------------------------------------------------------------------
 ; NMI - INTERRUPT VECTOR NMI
 
-.section         .v_nmi
                 JP      INT_NMI_ADDR
 
+.section         .v_tab_p
 ;==============================================================================
 ;
 ; Z80 INTERRUPT VECTOR TABLE PROTOTYPE
@@ -72,8 +72,6 @@
 ; WILL BE DUPLICATED DURING INIT TO:
 ;
 ;               ORG     VECTOR_BASE
-
-.section         .v_tab_p
 
 RST_00_LBL:
                 JP      RST_00
@@ -103,10 +101,9 @@ INT_NMI_LBL:
                 JP      INT_NMI
                 NOP
 
+.section         .v_nullr
 ;------------------------------------------------------------------------------
 ; NULL RETURN INSTRUCTIONS
-
-.section         .v_nullr
 
 INT_NMI:
                 RETN

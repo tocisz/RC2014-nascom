@@ -86,13 +86,12 @@ SER_RDRF        =   $01    ; Receive Data Register Full
 ACIA_CONFIG_INITIAL = SER_TDI_RTS0|SER_8N2|SER_CLK_DIV_64
 ACIA_CONFIG_DEFAULT = SER_REI|SER_TDI_RTS0|SER_8N2|SER_CLK_DIV_64
 
+.section acia_int              ; ORG $0070
 ;==============================================================================
 ;
 ; CODE SECTION
 ;
-
 ;------------------------------------------------------------------------------
-.section acia_int              ; ORG $0070
 
 acia_int:
         push af
@@ -171,15 +170,14 @@ acia_txa_end:
         ei
         reti
 
+.section acia_rxa                    ; ORG $00D8
 ;------------------------------------------------------------------------------
 ; SECTION acia_rxa_chk              ; ORG $00D8
 ;
 ; .RXA_CHK                          ; insert directly into JumP table
 ;       ld a,(serRxBufUsed)
 ;       ret
-
 ;------------------------------------------------------------------------------
-.section acia_rxa                    ; ORG $00D8
 
 RXA:
         ld a,(serRxBufUsed)         ; get the number of bytes in the Rx buffer
@@ -381,11 +379,12 @@ PRINT:
         INC HL                      ; next Character
         JP PRINT                    ; continue until $00
 
+.section init_str                ; ORG $01F0
 ;==============================================================================
 ;
 ; STRINGS
 ;
-.section init_str                ; ORG $01F0
+;==============================================================================
 
 SIGNON1:
         .ascii    "\r\nRC2014 - MS Basic Loader\r\n"

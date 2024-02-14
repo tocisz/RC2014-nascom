@@ -1,3 +1,4 @@
+.section .bas
 ;==============================================================================
 ;
 ; The rework to support MS Basic HLOAD, RESET, MEEK, MOKE,
@@ -33,8 +34,6 @@
 ; the original ROM code (checksum A934H). PA
 ;
 ;==============================================================================
-
-.section .bas
 
 .global RST_20
 .global RST_28
