@@ -51,9 +51,9 @@ SECTIONS
         . = ABSOLUTE(0x01F0);
         *(init_str)
     } > rom
-    .text : {
+    .bas : {
         FILL(0xFFFF)
         . = ABSOLUTE(0x0240);
-        *(.text)
+        *(.bas)
     } > rom
 }
