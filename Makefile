@@ -5,12 +5,13 @@ OBJCOPY = z80-unknown-coff-objcopy
 ASFLAGS = -march=z80
 LDFLAGS =  
 
+LD_FILES := $(wildcard *.ld)
 SRC_ASM := $(wildcard *.asm)
 OBJ_FILES := $(patsubst %.asm,%.out,$(SRC_ASM))
 
 all: md5check
 
-rom.bin: $(OBJ_FILES) rom.ld
+rom.bin: $(OBJ_FILES) $(LD_FILES)
 	$(LINKER) $(LDFLAGS) -T rom.ld -Map=rom.map $(OBJ_FILES) -o $@
 
 %.out: %.asm
