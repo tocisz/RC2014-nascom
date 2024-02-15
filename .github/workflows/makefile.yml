@@ -1,4 +1,4 @@
-name: Makefile CI
+name: Make and release
 
 on:
   push
@@ -21,4 +21,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: rom.bin
+        files:
+        - rom.bin
+        - ram.hex

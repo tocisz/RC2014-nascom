@@ -1,4 +1,4 @@
-.section .bas
+.section .bas, "rx"
 ;==============================================================================
 ;
 ; The rework to support MS Basic HLOAD, RESET, MEEK, MOKE,
@@ -4487,3 +4487,6 @@ HEXIT:  EX      DE,HL           ; Value into DE, Code string into HL
         RET
 
 END:
+
+.section .basram, "rx"
+; RAM secition reserved for BASIC

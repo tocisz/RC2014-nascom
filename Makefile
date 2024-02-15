@@ -9,10 +9,16 @@ LD_FILES := $(wildcard *.ld)
 SRC_ASM := $(wildcard *.asm)
 OBJ_FILES := $(patsubst %.asm,%.out,$(SRC_ASM))
 
-all: md5check
+all: md5check ram.hex
 
-rom.bin: $(OBJ_FILES) $(LD_FILES)
-	$(LINKER) $(LDFLAGS) -T rom.ld -Map=rom.map $(OBJ_FILES) -o $@
+ram.hex: system.out
+	$(OBJCOPY) -O ihex -j.ram $< $@
+
+rom.bin: system.out
+	$(OBJCOPY) -O binary -j.rom $< $@
+
+system.out: $(OBJ_FILES) $(LD_FILES)
+	$(LINKER) $(LDFLAGS) -T system.ld -Map=system.map $(OBJ_FILES) -o $@
 
 %.out: %.asm
 	$(ASSEMBLER) $(ASFLAGS) $< -o $@ > $<.lst

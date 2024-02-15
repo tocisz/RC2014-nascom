@@ -10,7 +10,7 @@
 ;
 ;==============================================================================
 
-.section .v_rst
+.section .v_rst, "rx"
 ;==============================================================================
 ;
 ; Z80 INTERRUPT ORIGINATING VECTOR TABLE
@@ -58,13 +58,13 @@
 .org     0038H, 0xFF
                 JP      INT_INT0_ADDR
 
-.section         .v_nmi
+.section         .v_nmi, "rx"
 ;------------------------------------------------------------------------------
 ; NMI - INTERRUPT VECTOR NMI
 
                 JP      INT_NMI_ADDR
 
-.section         .v_tab_p
+.section         .v_tab_p, "rx"
 ;==============================================================================
 ;
 ; Z80 INTERRUPT VECTOR TABLE PROTOTYPE
@@ -101,7 +101,7 @@ INT_NMI_LBL:
                 JP      INT_NMI
                 NOP
 
-.section         .v_nullr
+.section         .v_nullr, "rx"
 ;------------------------------------------------------------------------------
 ; NULL RETURN INSTRUCTIONS
 

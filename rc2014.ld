@@ -13,6 +13,7 @@ RAMSTART        =   RAM_32_START;
 */
 WRKSPC      =   RAMSTART + 0x0200; /* set BASIC Work space WRKSPC */
 WRKSPC_OFF  =   WRKSPC-RAMSTART-1; /* beyond the end of ACIA stuff */
+MEMORY_TOP  =   WRKSPC + 0x0200;
 
 TEMPSTACK   =   WRKSPC+0x0A2; /* Top of BASIC line input buffer */
                               /* (CURPOS = WRKSPC+0ABH) */

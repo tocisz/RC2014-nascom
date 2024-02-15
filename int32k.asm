@@ -38,6 +38,7 @@
 .global RST_08
 .global RST_10
 .global INT_INT
+.global PRINT
 
 RST_00 = INIT
 RST_08 = TXA
@@ -86,7 +87,7 @@ SER_RDRF        =   $01    ; Receive Data Register Full
 ACIA_CONFIG_INITIAL = SER_TDI_RTS0|SER_8N2|SER_CLK_DIV_64
 ACIA_CONFIG_DEFAULT = SER_REI|SER_TDI_RTS0|SER_8N2|SER_CLK_DIV_64
 
-.section acia_int              ; ORG $0070
+.section .acia_in, "rx"              ; ORG $0070
 ;==============================================================================
 ;
 ; CODE SECTION
@@ -170,7 +171,7 @@ acia_txa_end:
         ei
         reti
 
-.section acia_rxa                    ; ORG $00D8
+.section .acia_rx, "rx"                    ; ORG $00D8
 ;------------------------------------------------------------------------------
 ; SECTION acia_rxa_chk              ; ORG $00D8
 ;
@@ -210,7 +211,7 @@ rxa_get_byte:
         ret                         ; char ready in A
 
 ;------------------------------------------------------------------------------
-.section acia_txa                    ; ORG $0100
+.section .acia_tx, "rx"                    ; ORG $0100
 
 TXA:                                ; output a character in A via ACIA:
         push hl                     ; store HL so we don't clobber it
@@ -266,7 +267,7 @@ txa_buffer_out:
         ret
 
 ;------------------------------------------------------------------------------
-.section init                        ; ORG $0148
+.section .init, "rx"                        ; ORG $0148
 
 MEM_ERR:
         LD L,A                      ; preserve the error byte
@@ -379,7 +380,7 @@ PRINT:
         INC HL                      ; next Character
         JP PRINT                    ; continue until $00
 
-.section init_str                ; ORG $01F0
+.section .init_st, "rx"                ; ORG $01F0
 ;==============================================================================
 ;
 ; STRINGS
