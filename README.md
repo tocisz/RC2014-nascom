@@ -4,9 +4,9 @@ This is binary compatible port of https://github.com/feilipu/NASCOM_BASIC_4.7/tr
 
 The build is setup to generate `system.out` file, which contais both ROM and RAM sections. Last step is to extract ROM portion
 into `rom.bin` (which is identical to the binary from the original project) and `ram.hex` (which currently contains hello world
-sample from [hello.asm](hello.asm)).
+sample from [hello.asm]).
 
-RAM destined assembly is setup to go to `0x8400` address. This can be changed in [rc2014.ld](https://github.com/tocisz/RC2014-nascom/blob/main/rc2014.ld#L16)
+RAM destined assembly is setup to go to `0x8400` address. This can be changed in [rc2014.ld](rc2014.ld#L16)
 by setting `MEMORY_TOP` to a different value.
 
 To be sure that BASIC won't collide with the program loaded by `HLOAD`, enter appropriate `Memory top` value when BASIC starts. E.g. for the default
@@ -18,7 +18,11 @@ Copyright (C) 1978 by Microsoft
 203 Bytes free
 ```
 
-Origianal README with more information about NASCOM BASIC and modification that were made follws:
+The benefit of building both ROM and RAM is the ease of reusing code from the ROM in the RAM image. E.g. to use `PRINT` function from
+[int32k.asm] it was declared global [here](int32k.asm#L41) and it can be used in the hello world sample program [here](hello.asm#L4).
+
+The origianal README with more information about NASCOM BASIC and modification that were made follws.
+
 ---
 
 This ROM works with the __Mini__, __Micro__, and __Classic__ versions of the RC2014, with 32k of RAM. This is the ROM to choose if you want fast I/O from a standard RC2014, together with the capability to upload and run C or assembly programs from within MS Basic.
