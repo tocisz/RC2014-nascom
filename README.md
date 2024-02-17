@@ -3,7 +3,7 @@
 This is binary compatible port of https://github.com/feilipu/NASCOM_BASIC_4.7/tree/master/rc2014_NascomBasic32k to GNU AS.
 
 The build is setup to generate `system.out` file, which contais both ROM and RAM sections. Last step is to extract ROM portion
-into `rom.bin` (which is identical to the binary from the original project) and `ram.hex` (which currently contains hello world
+into `rom.bin` (which is identical to the binary from the original project) and RAM portion into `ram.hex` (which currently contains hello world
 sample from [hello.asm](hello.asm)).
 
 RAM destined assembly is setup to go to `0x8400` address. This can be changed in [rc2014.ld](rc2014.ld#L16)
