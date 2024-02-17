@@ -21,7 +21,7 @@ Copyright (C) 1978 by Microsoft
 The benefit of building both ROM and RAM is the ease of reusing code from the ROM in the RAM image. E.g. to use `PRINT` function from
 [int32k.asm](int32k.asm) it was declared global [here](int32k.asm#L41) and it can be used in the hello world sample program [here](hello.asm#L4).
 
-The origianal README with more information about NASCOM BASIC and modification that were made follws.
+The original README with more information about NASCOM BASIC and modification that were made follws.
 
 ---
 
