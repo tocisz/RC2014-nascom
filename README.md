@@ -2,6 +2,25 @@
 
 This is binary compatible port of https://github.com/feilipu/NASCOM_BASIC_4.7/tree/master/rc2014_NascomBasic32k to GNU AS.
 
+The build is setup to generate `system.out` file, which contais both ROM and RAM sections. Last step is to extract ROM portion
+into `rom.bin` (which is identical to the binary from the original project) and `ram.hex` (which currently contains hello world
+sample from [hello.asm](hello.asm)).
+
+RAM destined assembly is setup to go to `0x8400` address. This can be changed in [rc2014.ld](https://github.com/tocisz/RC2014-nascom/blob/main/rc2014.ld#L16)
+by setting `MEMORY_TOP` to a different value.
+
+To be sure that BASIC won't collide with the program loaded by `HLOAD`, enter appropriate `Memory top` value when BASIC starts. E.g. for the default
+setup it's `0x8400` hexadecimal, `33792` decimal.
+```
+Memory top? 33792
+Z80 BASIC Ver 4.7c
+Copyright (C) 1978 by Microsoft
+203 Bytes free
+```
+
+Origianal README with more information about NASCOM BASIC and modification that were made follws:
+---
+
 This ROM works with the __Mini__, __Micro__, and __Classic__ versions of the RC2014, with 32k of RAM. This is the ROM to choose if you want fast I/O from a standard RC2014, together with the capability to upload and run C or assembly programs from within MS Basic.
 
 ACIA 6850 interrupt driven serial I/O to run modified NASCOM Microsoft Basic 4.7. The receive interface has a 255 byte software buffer, together with highly optimised buffer management supporting the 68C50 ACIA receive double buffer. Receive hardware (RTS) flow control is provided. The transmit interface is also buffered, with direct cut-through when the 63 byte software buffer is empty, to ensure that the CPU is not held in wait state during serial transmission. Use 115200 baud with 8n2.
