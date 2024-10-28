@@ -39,6 +39,9 @@
 .global RST_28
 .global RST_30
 
+.global PRHEX
+.global PRHL
+
 RST_20 = UFERR
 RST_28 = UFERR
 RST_30 = UFERR
