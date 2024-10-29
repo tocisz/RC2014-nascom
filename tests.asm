@@ -200,7 +200,8 @@ TEST2:
 	push	hl
 	ld	hl,W_1 ; NFA of W_1
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST2_RET:
 	ld	h,b
 	ld	l,c
@@ -230,13 +231,74 @@ TEST2_RET:
 
 	jp	TEST_OK ; all OK
 
-; ; recognize word of length 1
-; TEST1:
-; TEST1_FAIL:
-; 	ld	a,1
-; TEST1_OK:
-; 	jp	AFTER_TEST
-; 
+; recognize word of length 1
+TEST3:
+	ld	hl,TEST3_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME1 ; sth to find
+	push	hl
+	ld	hl,W_1 ; NFA of W_1
+	push	hl
+	jp	X_FIND
+TEST3_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	b,0
+	ld	c,6
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 3 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,1
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 1 on top, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,2
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,0081h
+	or	a
+	sbc	hl,bc
+	ld	a,4
+	jp	nz,AFTER_TEST	; expected word header, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,4
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,P_1 ; PFA
+	or	a
+	sbc	hl,bc
+	ld	a,5
+	jp	nz,AFTER_TEST	; expected word PFA, but it's not
+
+	jp	TEST_OK ; all OK
+
 ; ; recognize word of length 3 
 ; TEST2:
 ; 	ld	a,0
@@ -266,6 +328,7 @@ PRHLS:
 TESTS:
 	.word	TEST1
 	.word	TEST2
+	.word	TEST3
 TESTS_END:
 
 W_1:
@@ -288,6 +351,21 @@ C_2:
 P_2:
 	.word 0
 
+WNAME1:
+	.byte 1
+	.ascii "A"
+
+WNAME2:
+	.byte 3
+	.ascii "BCD"
+
+WNAME3: ; wrong length for A, good length for BCD
+	.byte 3
+	.ascii "AAA"
+
+WNAME4: ; almost match for BCD
+	.byte 3
+	.ascii "BCA"
 
 M_TEST:
 	.asciz	"Test "
