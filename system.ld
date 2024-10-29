@@ -35,6 +35,9 @@ SECTIONS
         . = ABSOLUTE(MEMORY_TOP);
     } > ram
     .ram : {
-        *(.text .data .bss)
+        *(.text .data)
+    } > ram
+    .bss : {
+        *(.bss)
     } > ram
 }
