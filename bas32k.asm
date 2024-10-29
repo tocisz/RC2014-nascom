@@ -41,6 +41,7 @@
 
 .global PRHEX
 .global PRHL
+.global OUTC
 
 RST_20 = UFERR
 RST_28 = UFERR

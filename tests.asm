@@ -1,10 +1,16 @@
+NL = 0Ah
+SPACE = 20h
+
 .section	.text
 MAIN:
 	ld	hl,0
 	add	hl,sp
 	call	PRHL
-	ld	hl,NL
-	call	PRINT
+	ld	a,NL
+	call	OUTC
+
+;	ld	(BASICSP),sp ; move stack to different location
+;	ld	SP,0
 
 	ld	b,0
 	ld	hl,TESTS
@@ -19,6 +25,8 @@ L1:
 	inc	b
 	ld	a,b
 	call	PRHEX
+	ld	a,SPACE
+	call	OUTC
 
 	; indirect jump
 	pop	hl
@@ -41,8 +49,8 @@ FAIL:
 	call	PRINT
 	pop	af
 	call	PRHEX
-	ld	hl,NL
-	call	PRINT
+	ld	a,NL
+	call	OUTC
 	jr	L2
 OK:
 	ld	hl,M_OK
@@ -56,6 +64,7 @@ L2:
 	sbc	hl,de
 	jr	nz,L1
 	pop	hl
+;	ld	sp,(BASICSP) ; restore BASIC stack
 	ret
 
 ; this function expects on stack:
@@ -131,12 +140,13 @@ NEXTS1:
 	push	HL
 NEXT:
 	; safely restore stack pointer before the test
-	; return top of it in HL
-	; and length in DE
+	; return top of it in SPTEST
+	; and length in SLEN
 	ld	(SPTEST),sp
 	ld	sp,(SPBACKUP)
 	ld	hl,(SPTEST)
 	ld	de,(SPBACKUP)
+	or	a
 	sbc	hl,de
 	ld	(SLEN),hl	; XXX this location is on stack after test...
 	ret
@@ -168,11 +178,42 @@ TEST1_RET:
 	ld	a,2
 	jp	nz,AFTER_TEST	; expected one element on stack, but it's not
 
-	ld	hl,(SPTEST)
-	ld	e,(hl)
-	inc	hl
-	ld	d,(hl)
-	ex	de,hl
+	ld	sp,(SPTEST)
+	pop	hl
+	ld	sp,(SPBACKUP)
+	pop	de ; drop return address
+;	ld	hl,(SPTEST)
+;	ld	e,(hl)
+;	inc	hl
+;	ld	d,(hl)
+;	ex	de,hl
+	call	PRHLS ; THE PROBLEM IS -- CALL USES STACK, and our stacks are not separated at all
+	; looks like even w/o call it sometimes can be overriden by an interrupt handler!
+	; NEVER assume that memory just below SP won't change!
+
+	ld	sp,(SPTEST)
+	pop	hl
+	ld	sp,(SPBACKUP)
+	pop	de ; drop return address
+;	ld	hl,(SPTEST)
+;	ld	e,(hl)
+;	inc	hl
+;	ld	d,(hl)
+;	ex	de,hl
+	call	PRHLS
+
+	ld	sp,(SPTEST)
+	pop	hl
+	ld	sp,(SPBACKUP)
+	pop	de ; drop return address
+;	ld	hl,(SPTEST)
+;	ld	e,(hl)
+;	inc	hl
+;	ld	d,(hl)
+;	ex	de,hl
+	call	PRHLS
+
+	jr	TEST_OK
 	ld	bc,3210h
 	or	a
 	sbc	hl,bc
@@ -248,6 +289,12 @@ TEST2_RET:
 ; ; make sure correct PFA is returned
 ; ; make sure first NFA byte is correctly returned
 
+PRHLS:
+	call	PRHL
+	ld	a,SPACE
+	call	OUTC
+	ret
+
 .section	.data
 
 TESTS:
@@ -288,8 +335,6 @@ M_OK:
 	.asciz	" OK\n"
 M_FAILED_WITH:
 	.asciz	" FAILED with "
-NL:
-	.asciz	"\n"
 
 .section .bss
 SPBACKUP:
