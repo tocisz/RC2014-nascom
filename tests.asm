@@ -299,23 +299,225 @@ TEST3_RET:
 
 	jp	TEST_OK ; all OK
 
-; ; recognize word of length 3 
-; TEST2:
-; 	ld	a,0
-; 	jp	AFTER_TEST
-; 
-; ; make one hop to recognize word of length 3
-; TEST3:
-; 	ld	a,0
-; 	jp	AFTER_TEST
-; 
-; ; no word matches
-; TEST4:
-; 	ld	a,0
-; 	jp	AFTER_TEST
-; 
-; ; make sure correct PFA is returned
-; ; make sure first NFA byte is correctly returned
+; recognize word of length 3 
+TEST4:
+	ld	hl,TEST4_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME2 ; sth to find
+	push	hl
+	ld	hl,W_2 ; NFA of W_1
+	push	hl
+	jp	X_FIND
+TEST4_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	b,0
+	ld	c,6
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 3 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,1
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 1 on top, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,2
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,0083h
+	or	a
+	sbc	hl,bc
+	ld	a,4
+	jp	nz,AFTER_TEST	; expected word header, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,4
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,P_2 ; PFA
+	or	a
+	sbc	hl,bc
+	ld	a,5
+	jp	nz,AFTER_TEST	; expected word PFA, but it's not
+
+	jp	TEST_OK ; all OK
+
+; make one hop to recognize word of length 1
+TEST5:
+	ld	hl,TEST5_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME1 ; sth to find
+	push	hl
+	ld	hl,W_2 ; NFA of W_1
+	push	hl
+	jp	X_FIND
+TEST5_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	b,0
+	ld	c,6
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 3 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,1
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 1 on top, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,2
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,0081h
+	or	a
+	sbc	hl,bc
+	ld	a,4
+	jp	nz,AFTER_TEST	; expected word header, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,4
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,P_1 ; PFA
+	or	a
+	sbc	hl,bc
+	ld	a,5
+	jp	nz,AFTER_TEST	; expected word PFA, but it's not
+
+	jp	TEST_OK ; all OK
+
+; no word matches - wrong length for W1, no match for W2
+TEST6:
+	ld	hl,TEST6_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME3 ; sth to find
+	push	hl
+	ld	hl,W_2 ; NFA
+	push	hl
+	jp	X_FIND
+TEST6_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	b,0
+	ld	c,2
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 1 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,0
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 0 on top, but it's not
+
+	jp	TEST_OK ; all OK
+
+; no word matches - mismatch of the last letter
+TEST7:
+	ld	hl,TEST7_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME4 ; sth to find
+	push	hl
+	ld	hl,W_2 ; NFA
+	push	hl
+	jp	X_FIND
+TEST7_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	b,0
+	ld	c,2
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 1 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,0
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 0 on top, but it's not
+
+	jp	TEST_OK ; all OK
 
 PRHLS:
 	call	PRHL
@@ -329,6 +531,10 @@ TESTS:
 	.word	TEST1
 	.word	TEST2
 	.word	TEST3
+	.word	TEST4
+	.word	TEST5
+	.word	TEST6
+	.word	TEST7
 TESTS_END:
 
 W_1:
