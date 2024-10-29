@@ -23,10 +23,10 @@ system.out: $(SYSTEM_OBJ) $(LD_FILES)
 	$(LINKER) $(LDFLAGS) -T system.ld -Map=system.map $(SYSTEM_OBJ) -o $@
 
 hello.out: hello.o $(SYSTEM_OBJ) $(LD_FILES)
-	$(LINKER) $(LDFLAGS) -T system.ld -Map=system.map $< $(SYSTEM_OBJ) -o $@
+	$(LINKER) $(LDFLAGS) -T system.ld -Map=hello.map $< $(SYSTEM_OBJ) -o $@
 
 tests.out: tests.o $(SYSTEM_OBJ) $(LD_FILES)
-	$(LINKER) $(LDFLAGS) -T system.ld -Map=system.map $< $(SYSTEM_OBJ) -o $@
+	$(LINKER) $(LDFLAGS) -T system.ld -Map=tests.map $< $(SYSTEM_OBJ) -o $@
 
 %.o: %.asm
 	$(ASSEMBLER) $(ASFLAGS) $< -o $@ > $<.lst
