@@ -3,15 +3,6 @@ SPACE = 20h
 
 .section	.text
 MAIN:
-	ld	hl,0
-	add	hl,sp
-	call	PRHL
-	ld	a,NL
-	call	OUTC
-
-;	ld	(BASICSP),sp ; move stack to different location
-;	ld	SP,0
-
 	ld	b,0
 	ld	hl,TESTS
 	push	hl
@@ -64,7 +55,6 @@ L2:
 	sbc	hl,de
 	jr	nz,L1
 	pop	hl
-;	ld	sp,(BASICSP) ; restore BASIC stack
 	ret
 
 ; this function expects on stack:
@@ -145,10 +135,10 @@ NEXT:
 	ld	(SPTEST),sp
 	ld	sp,(SPBACKUP)
 	ld	hl,(SPTEST)
-	ld	de,(SPBACKUP)
+	ld	de,TEST_STACK
 	or	a
 	sbc	hl,de
-	ld	(SLEN),hl	; XXX this location is on stack after test...
+	ld	(SLEN),hl
 	ret
 
 
@@ -157,6 +147,8 @@ TEST1:
 	ld	hl,TEST1_RET
 	push	hl
 	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
 	ld	bc,666
 	ld	hl,4321h ; first arg
 	push	hl
@@ -178,57 +170,31 @@ TEST1_RET:
 	ld	a,2
 	jp	nz,AFTER_TEST	; expected one element on stack, but it's not
 
-	ld	sp,(SPTEST)
-	pop	hl
-	ld	sp,(SPBACKUP)
-	pop	de ; drop return address
-;	ld	hl,(SPTEST)
-;	ld	e,(hl)
-;	inc	hl
-;	ld	d,(hl)
-;	ex	de,hl
-	call	PRHLS ; THE PROBLEM IS -- CALL USES STACK, and our stacks are not separated at all
-	; looks like even w/o call it sometimes can be overriden by an interrupt handler!
-	; NEVER assume that memory just below SP won't change!
-
-	ld	sp,(SPTEST)
-	pop	hl
-	ld	sp,(SPBACKUP)
-	pop	de ; drop return address
-;	ld	hl,(SPTEST)
-;	ld	e,(hl)
-;	inc	hl
-;	ld	d,(hl)
-;	ex	de,hl
-	call	PRHLS
-
-	ld	sp,(SPTEST)
-	pop	hl
-	ld	sp,(SPBACKUP)
-	pop	de ; drop return address
-;	ld	hl,(SPTEST)
-;	ld	e,(hl)
-;	inc	hl
-;	ld	d,(hl)
-;	ex	de,hl
-	call	PRHLS
-
-	jr	TEST_OK
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
 	ld	bc,3210h
 	or	a
 	sbc	hl,bc
 	ld	a,3
 	jp	nz,AFTER_TEST	; expected 0x3210 on top, but it's not
+
 TEST_OK:
 	ld	a,0
 	jp	AFTER_TEST
 
 
 ; BC stays as before call
+; one value on the stack
+; it's 0
 TEST2:
 	ld	hl,TEST2_RET
 	push	hl
 	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
 	ld	bc,666
 	ld	hl,M_TEST ; sth to find
 	push	hl
@@ -256,11 +222,11 @@ TEST2_RET:
 	inc	hl
 	ld	d,(hl)
 	ex	de,hl
-	call	PRHL
 	ld	bc,0
-	add	hl,bc ; adding 0 to calculate flags
+	or	a
+	sbc	hl,bc
 	ld	a,3
-	jp	nz,AFTER_TEST	; expected one element on stack, but it's not
+	jp	nz,AFTER_TEST	; expected 0 on top, but it's not
 
 	jp	TEST_OK ; all OK
 
@@ -299,13 +265,7 @@ PRHLS:
 
 TESTS:
 	.word	TEST1
-	.word	TEST1
-	.word	TEST1
-	.word	TEST1
-	.word	TEST1
-	.word	TEST1
-;	.word	TEST3
-;	.word	TEST4
+	.word	TEST2
 TESTS_END:
 
 W_1:
@@ -332,14 +292,17 @@ P_2:
 M_TEST:
 	.asciz	"Test "
 M_OK:
-	.asciz	" OK\n"
+	.asciz	"OK\n"
 M_FAILED_WITH:
-	.asciz	" FAILED with "
+	.asciz	"FAILED with "
 
 .section .bss
 SPBACKUP:
 	.word 0
-SLEN:
-	.word 0
 SPTEST:
 	.word 0
+SLEN:
+	.word 0
+
+.skip	20
+TEST_STACK:
