@@ -211,8 +211,7 @@ TEST2_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,2
+	ld	bc,2
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
@@ -253,8 +252,7 @@ TEST3_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,6
+	ld	bc,6
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
@@ -321,8 +319,7 @@ TEST4_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,6
+	ld	bc,6
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
@@ -389,8 +386,7 @@ TEST5_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,6
+	ld	bc,6
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
@@ -457,8 +453,7 @@ TEST6_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,2
+	ld	bc,2
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
@@ -499,8 +494,7 @@ TEST7_RET:
 	ld	a,1
 	jp	nz,AFTER_TEST	; BC != 666
 
-	ld	b,0
-	ld	c,2
+	ld	bc,2
 	ld	hl,(SLEN)
 	adc	hl,bc
 	ld	a,2
