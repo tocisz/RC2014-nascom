@@ -72,18 +72,17 @@ X_FIND:
 	POP	DE			;Get pointer to next vocabulary word
 COMPARE:
 	POP	HL			;Copy pointer to word we're looking 4
-	push	bc		; so we have 1. BC backup (must be restored before NEXT)
+	push	bc		; 1. BC backup (must be restored before NEXT)
 	LD	A,(DE)			;Get 1st vocabulary word letter
 	AND	3Fh			;Ignore start flag
 	ld	b,0
-	ld	c,a		; BC is lenght
+	ld	c,a		; BC is length
 	PUSH	HL		; 2. word to find
 	push	de		; 3. vocabulary word NFA
 	ex	de,hl
-	inc	hl
 	add	hl,bc
 	ld	b,h
-	ld	c,l		; bc is LFA
+	ld	c,l		; BC is LFA-1
 	pop	hl
 	push	hl	; HL - NFA, DE - to find
 	ex	de,hl	; HL - to find, DE - NFA
@@ -91,23 +90,27 @@ COMPARE:
 	JR	NZ,NO_MATCH		;No match so skip to next word
 MATCH_NO_END:
 	; s: BC, dictionary word, word to find; BC: length, DE: dict word ptr, HL: word ptr
+	; if BC = DE then it's a MATCH
+	ld	a,c
+	xor	e
+	jr	nz,CONTINUE
+	ld	a,b
+	xor	d
+	jr	z,MATCH
+CONTINUE:
+	INC	DE			;Compare next chr
 	INC	HL			;Compare next chr
-	INC	DE			;
 	LD	A,(DE)			;
 	AND	7Fh			;Ignore freaking flag (for now)
 	XOR	(HL)			;
-;	ADD	A,A			;Move bit 7 to C flag -- ah, here it's used
 	JR	NZ,NO_MATCH		;No match jump
-	; this char is OK, but is it the end?
-	; i.e. is 
-
-;	JR	NC,MATCH_NO_END		;Match & not last, so next chr
-	; we have a match!
+	JR	MATCH_NO_END		;Match & not last, so next chr
+MATCH:
 	pop	hl		; 3. NFA
 	pop	de		; 2. word to find - discard it
 	ld	d,0
 	ld	e,(hl)		; return(2) word header
-	ld	hl,4
+	ld	hl,5
 	add	hl,bc
 	pop	bc		; 1. BC - OK
 	push	hl		; return(3) PFA
@@ -117,6 +120,7 @@ NO_MATCH:
 	; s: BC, dictionary word, word to find; BC: length
 	pop	hl		; 3. NFA - ignore
 	pop	de		; 2. word to find
+	inc	bc
 	ld	h,b
 	ld	l,c		; HL - LFA
 	pop	bc		; 1. BC - OK
