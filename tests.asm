@@ -1,6 +1,9 @@
 NL = 0Ah
 SPACE = 20h
 
+REFERENCE_TEST = 1
+COMPATIBILITY_MODE = 1
+
 .section	.text
 MAIN:
 	ld	b,0
@@ -57,85 +60,11 @@ L2:
 	pop	hl
 	ret
 
-; this function expects on stack:
-;  - pointer to next vocabulary word NFA (on top)
-;  - pointer to word we're looking 4
-; BC needs to stay as it was before
-W_FIND:					;Find word & return vector,byte & flag
-	.byte 80h+6
-	.ascii "<find"
-	.byte '>' + 80h
-	.word	0 ; link
-C_FIND:
-	.WORD	2+$			;Vector to code
-X_FIND:
-	POP	DE			;Get pointer to next vocabulary word
-COMPARE:
-	POP	HL			;Copy pointer to word we're looking 4
-	push	bc		; 1. BC backup (must be restored before NEXT)
-	LD	A,(DE)			;Get 1st vocabulary word letter
-	AND	3Fh			;Ignore start flag
-	ld	b,0
-	ld	c,a		; BC is length
-	PUSH	HL		; 2. word to find
-	push	de		; 3. vocabulary word NFA
-	ex	de,hl
-	add	hl,bc
-	ld	b,h
-	ld	c,l		; BC is LFA-1
-	pop	hl
-	push	hl	; HL - NFA, DE - to find
-	ex	de,hl	; HL - to find, DE - NFA
-	XOR	(HL)			;Compare with what we've got
-	JR	NZ,NO_MATCH		;No match so skip to next word
-MATCH_NO_END:
-	; s: BC, dictionary word, word to find; BC: length, DE: dict word ptr, HL: word ptr
-	; if BC = DE then it's a MATCH
-	ld	a,c
-	xor	e
-	jr	nz,CONTINUE
-	ld	a,b
-	xor	d
-	jr	z,MATCH
-CONTINUE:
-	INC	DE			;Compare next chr
-	INC	HL			;Compare next chr
-	LD	A,(DE)			;
-	AND	7Fh			;Ignore freaking flag (for now)
-	XOR	(HL)			;
-	jr	NZ,NO_MATCH		;No match jump
-	JR	MATCH_NO_END		;Match & not last, so next chr
-MATCH:
-	pop	hl		; 3. NFA
-	pop	de		; 2. word to find - discard it
-	ld	d,0
-	ld	e,(hl)		; return(2) word header
-	ld	hl,5
-	add	hl,bc
-	pop	bc		; 1. BC - OK
-	push	hl		; return(3) PFA
-	LD	HL,1		; return(1) TRUE
-	JP	NEXTS2			;Save both & NEXT
-NO_MATCH:
-	; s: BC, dictionary word, word to find; BC: length
-	pop	hl		; 3. NFA - discard it
-	pop	de		; 2. word to find
-	inc	bc
-	ld	h,b
-	ld	l,c		; HL - LFA
-	pop	bc		; 1. BC - OK
-	push	de		; word to find -> needed by COMPARE
-	; s: word to find, HL: LFA
-	LD	E,(HL)			;Vector into DE
-	INC	HL			;
-	LD	D,(HL)			;
-	LD	A,D			;Check it's not last (first) word
-	OR	E			;
-	; s: word to find, DE: next word NFA
-	JR	NZ,COMPARE		;No error so loop
-	POP	HL			;Dump pointer
-	LD	HL,0000			;Flag error
-	JP	NEXTS1			;Save & NEXT
+.if REFERENCE_TEST
+include "tested_original.asm"
+.else
+include "tested_new.asm"
+.endif
 
 TESTTEST:
 	pop	de
@@ -262,7 +191,8 @@ TEST3:
 	push	hl
 	ld	hl,W_1 ; NFA of W_1
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST3_RET:
 	ld	h,b
 	ld	l,c
@@ -329,7 +259,8 @@ TEST4:
 	push	hl
 	ld	hl,W_2 ; NFA of W_1
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST4_RET:
 	ld	h,b
 	ld	l,c
@@ -396,7 +327,8 @@ TEST5:
 	push	hl
 	ld	hl,W_2 ; NFA of W_1
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST5_RET:
 	ld	h,b
 	ld	l,c
@@ -463,7 +395,8 @@ TEST6:
 	push	hl
 	ld	hl,W_2 ; NFA
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST6_RET:
 	ld	h,b
 	ld	l,c
@@ -504,7 +437,8 @@ TEST7:
 	push	hl
 	ld	hl,W_2 ; NFA
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST7_RET:
 	ld	h,b
 	ld	l,c
@@ -545,7 +479,8 @@ TEST8:
 	push	hl
 	ld	hl,W_3 ; NFA of W_3
 	push	hl
-	jp	X_FIND
+	ld	hl,(C_FIND)
+	jp	(hl)
 TEST8_RET:
 	ld	h,b
 	ld	l,c
@@ -579,7 +514,7 @@ TEST8_RET:
 	inc	hl
 	ld	d,(hl)
 	ex	de,hl
-	ld	bc,00A3h
+	ld	bc,00C3h
 	or	a
 	sbc	hl,bc
 	ld	a,4
@@ -623,7 +558,11 @@ TESTS_END:
 ;Test 02 0000 OK +2 
 W_1:
 	.byte 80h+1
+.if COMPATIBILITY_MODE
+	.byte 'A'+80h
+.else
 	.ascii "A"
+.endif
 L_1:
 	.word 0 ; link
 C_1:
@@ -633,20 +572,43 @@ P_1:
 
 W_2:
 	.byte 80h+3
-	.ascii "BCD"
+	.ascii "BC"
+.if COMPATIBILITY_MODE
+	.byte 'D'+80h
+.else
+	.ascii "D"
+.endif
 	.word	W_1
 C_2:
 	.word 2345h
 P_2:
 	.word 3456h
 
-W_3:
-	.byte 0A0h+3
-	.ascii "AAA"
-	.word	W_1
+W_3: ; immediate
+	.byte 0C0h+3
+	.ascii "AA"
+.if COMPATIBILITY_MODE
+	.byte 'A'+80h
+.else
+	.ascii "A"
+.endif
+	.word	W_2
 C_3:
 	.word 2345h
 P_3:
+	.word 3456h
+
+W_4: ; smudged - TODO
+	.byte 0A0h+3
+.if COMPATIBILITY_MODE
+	.byte 'A'+80h
+.else
+	.ascii "A"
+.endif
+	.word	W_3
+C_4:
+	.word 2345h
+P_4:
 	.word 3456h
 
 WNAME1:
