@@ -114,11 +114,11 @@ MATCH:
 	add	hl,bc
 	pop	bc		; 1. BC - OK
 	push	hl		; return(3) PFA
-	LD	HL,0001		; return(1) TRUE
+	LD	HL,1		; return(1) TRUE
 	JP	NEXTS2			;Save both & NEXT
 NO_MATCH:
 	; s: BC, dictionary word, word to find; BC: length
-	pop	hl		; 3. NFA - ignore
+	pop	hl		; 3. NFA - discard it
 	pop	de		; 2. word to find
 	inc	bc
 	ld	h,b
@@ -126,7 +126,6 @@ NO_MATCH:
 	pop	bc		; 1. BC - OK
 	push	de		; word to find -> needed by COMPARE
 	; s: word to find, HL: LFA
-END_CHR:
 	LD	E,(HL)			;Vector into DE
 	INC	HL			;
 	LD	D,(HL)			;
@@ -556,7 +555,7 @@ TESTS_END:
 ;Test 02 0000 OK +2 
 W_1:
 	.byte 80h+1
-	.byte 'A' + 80h
+	.ascii "A"
 L_1:
 	.word 0 ; link
 C_1:
@@ -566,8 +565,7 @@ P_1:
 
 W_2:
 	.byte 80h+3
-	.ascii "BC"
-	.byte 'D' + 80h
+	.ascii "BCD"
 	.word	W_1
 C_2:
 	.word 2345h
