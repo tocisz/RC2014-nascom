@@ -535,6 +535,74 @@ TEST8_RET:
 
 	jp	TEST_OK ; all OK
 
+; skip smudged word
+TEST9:
+	ld	hl,TEST9_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME3 ; sth to find
+	push	hl
+	ld	hl,W_4 ; NFA of W_4
+	push	hl
+	ld	hl,(C_FIND)
+	jp	(hl)
+TEST9_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	bc,6
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 3 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,1
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 1 on top, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,2
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,00C3h
+	or	a
+	sbc	hl,bc
+	ld	a,4
+	jp	nz,AFTER_TEST	; expected word header, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,4
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,P_3 ; PFA
+	or	a
+	sbc	hl,bc
+	ld	a,5
+	jp	nz,AFTER_TEST	; expected word PFA, but it's not
+
+	jp	TEST_OK ; all OK
+
 PRHLS:
 	call	PRHL
 	ld	a,SPACE
@@ -552,6 +620,7 @@ TESTS:
 	.word	TEST6
 	.word	TEST7
 	.word	TEST8
+	.word	TEST9
 TESTS_END:
 
 ;Test 02 3400 - z inc
@@ -598,7 +667,7 @@ C_3:
 P_3:
 	.word 3456h
 
-W_4: ; smudged - TODO
+W_4: ; smudged
 	.byte 0A0h+3
 .if COMPATIBILITY_MODE
 	.byte 'A'+80h
