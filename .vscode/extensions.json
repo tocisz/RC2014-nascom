@@ -1,0 +1,8 @@
+{
+    "recommendations": [
+        "maziac.z80-instruction-set",
+        "thenestruo.z80-asm-meter",
+        "fttx.language-forth",
+        "mborik.z80-macroasm"
+    ]
+}
