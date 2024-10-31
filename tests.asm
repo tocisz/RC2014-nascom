@@ -75,15 +75,22 @@ COMPARE:
 	push	bc		; so we have 1. BC backup (must be restored before NEXT)
 	LD	A,(DE)			;Get 1st vocabulary word letter
 	AND	3Fh			;Ignore start flag
-;	push	af		; 2. length
 	ld	b,0
-	ld	c,a
+	ld	c,a		; BC is lenght
+	PUSH	HL		; 2. word to find
 	push	de		; 3. vocabulary word NFA
-	PUSH	HL		; 4. word to find
+	ex	de,hl
+	inc	hl
+	add	hl,bc
+	ld	b,h
+	ld	c,l		; bc is LFA
+	pop	hl
+	push	hl	; HL - NFA, DE - to find
+	ex	de,hl	; HL - to find, DE - NFA
 	XOR	(HL)			;Compare with what we've got
 	JR	NZ,NO_MATCH		;No match so skip to next word
 MATCH_NO_END:
-	; s: BC, dictionary word, word to find; BC: length
+	; s: BC, dictionary word, word to find; BC: length, DE: dict word ptr, HL: word ptr
 	INC	HL			;Compare next chr
 	INC	DE			;
 	LD	A,(DE)			;
@@ -92,15 +99,15 @@ MATCH_NO_END:
 ;	ADD	A,A			;Move bit 7 to C flag -- ah, here it's used
 	JR	NZ,NO_MATCH		;No match jump
 	; this char is OK, but is it the end?
+	; i.e. is 
 
 ;	JR	NC,MATCH_NO_END		;Match & not last, so next chr
 	; we have a match!
-	pop	de		; 4. word to find - discard it
-	pop	hl		; 3. start of dictionary word
+	pop	hl		; 3. NFA
+	pop	de		; 2. word to find - discard it
 	ld	d,0
 	ld	e,(hl)		; return(2) word header
-	add	hl,bc
-	ld	bc,5
+	ld	hl,4
 	add	hl,bc
 	pop	bc		; 1. BC - OK
 	push	hl		; return(3) PFA
@@ -108,13 +115,12 @@ MATCH_NO_END:
 	JP	NEXTS2			;Save both & NEXT
 NO_MATCH:
 	; s: BC, dictionary word, word to find; BC: length
-	pop	de		; 4. word to find
-	pop	hl		; 3. start of dictionary word
-	inc	hl
-	add	hl,bc
-	; pop	bc		; 2. length - flags?
+	pop	hl		; 3. NFA - ignore
+	pop	de		; 2. word to find
+	ld	h,b
+	ld	l,c		; HL - LFA
 	pop	bc		; 1. BC - OK
-	push	de		; 0. word to find -> needed by COMPARE
+	push	de		; word to find -> needed by COMPARE
 	; s: word to find, HL: LFA
 END_CHR:
 	LD	E,(HL)			;Vector into DE
