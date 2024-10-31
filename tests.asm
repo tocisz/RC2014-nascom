@@ -103,7 +103,7 @@ CONTINUE:
 	LD	A,(DE)			;
 	AND	7Fh			;Ignore freaking flag (for now)
 	XOR	(HL)			;
-	JR	NZ,NO_MATCH		;No match jump
+	jr	NZ,NO_MATCH		;No match jump
 	JR	MATCH_NO_END		;Match & not last, so next chr
 MATCH:
 	pop	hl		; 3. NFA
@@ -533,6 +533,73 @@ TEST7_RET:
 
 	jp	TEST_OK ; all OK
 
+; recognize immediate word
+TEST8:
+	ld	hl,TEST8_RET
+	push	hl
+	ld	(SPBACKUP),sp
+	ld	hl,TEST_STACK
+	ld	sp,hl
+	ld	bc,666
+	ld	hl,WNAME3 ; sth to find
+	push	hl
+	ld	hl,W_3 ; NFA of W_3
+	push	hl
+	jp	X_FIND
+TEST8_RET:
+	ld	h,b
+	ld	l,c
+	ld	bc,666
+	xor	a
+	sbc	hl,bc
+	ld	a,1
+	jp	nz,AFTER_TEST	; BC != 666
+
+	ld	bc,6
+	ld	hl,(SLEN)
+	adc	hl,bc
+	ld	a,2
+	jp	nz,AFTER_TEST	; expected 3 elements on stack, but it's not
+
+	ld	hl,(SPTEST)
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,1
+	or	a
+	sbc	hl,bc
+	ld	a,3
+	jp	nz,AFTER_TEST	; expected 1 on top, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,2
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,00A3h
+	or	a
+	sbc	hl,bc
+	ld	a,4
+	jp	nz,AFTER_TEST	; expected word header, but it's not
+
+	ld	hl,(SPTEST)
+	ld	de,4
+	add	hl,de
+	ld	e,(hl)
+	inc	hl
+	ld	d,(hl)
+	ex	de,hl
+	ld	bc,P_3 ; PFA
+	or	a
+	sbc	hl,bc
+	ld	a,5
+	jp	nz,AFTER_TEST	; expected word PFA, but it's not
+
+	jp	TEST_OK ; all OK
+
 PRHLS:
 	call	PRHL
 	ld	a,SPACE
@@ -549,6 +616,7 @@ TESTS:
 	.word	TEST5
 	.word	TEST6
 	.word	TEST7
+	.word	TEST8
 TESTS_END:
 
 ;Test 02 3400 - z inc
@@ -570,6 +638,15 @@ W_2:
 C_2:
 	.word 2345h
 P_2:
+	.word 3456h
+
+W_3:
+	.byte 0A0h+3
+	.ascii "AAA"
+	.word	W_1
+C_3:
+	.word 2345h
+P_3:
 	.word 3456h
 
 WNAME1:
