@@ -537,9 +537,9 @@ W_1:
 L_1:
 	.word 0 ; link
 C_1:
-	.word 0
+	.word 1234h
 P_1:
-	.word 0
+	.word 5678h
 
 W_2:
 	.byte 80h+3
@@ -547,9 +547,9 @@ W_2:
 	.byte 'D' + 80h
 	.word	W_1
 C_2:
-	.word 0
+	.word 2345h
 P_2:
-	.word 0
+	.word 3456h
 
 WNAME1:
 	.byte 1
