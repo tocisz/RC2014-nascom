@@ -72,46 +72,57 @@ X_FIND:
 	POP	DE			;Get pointer to next vocabulary word
 COMPARE:
 	POP	HL			;Copy pointer to word we're looking 4
-	PUSH	HL			;
+	push	bc		; so we have 1. BC backup (must be restored before NEXT)
 	LD	A,(DE)			;Get 1st vocabulary word letter
-	XOR	(HL)			;Compare with what we've got
 	AND	3Fh			;Ignore start flag
-	JR	NZ,NOT_END_CHR		;No match so skip to next word
+;	push	af		; 2. length
+	ld	b,0
+	ld	c,a
+	push	de		; 3. vocabulary word NFA
+	PUSH	HL		; 4. word to find
+	XOR	(HL)			;Compare with what we've got
+	JR	NZ,NO_MATCH		;No match so skip to next word
 MATCH_NO_END:
+	; s: BC, dictionary word, word to find; BC: length
 	INC	HL			;Compare next chr
 	INC	DE			;
 	LD	A,(DE)			;
+	AND	7Fh			;Ignore freaking flag (for now)
 	XOR	(HL)			;
-	ADD	A,A			;Move bit 7 to C flag -- ah, here it's used
+;	ADD	A,A			;Move bit 7 to C flag -- ah, here it's used
 	JR	NZ,NO_MATCH		;No match jump
-	JR	NC,MATCH_NO_END		;Match & not last, so next chr
-	LD	HL,0005			;Offset to start of code
-	ADD	HL,DE			;HL now points to code start for word
-	EX	(SP),HL			;Swap with value on stack
-NOT_WORD_BYTE:
-	DEC	DE			;Search back for word type byte
-	LD	A,(DE)			;
-	OR	A			;
-	JP	P,NOT_WORD_BYTE		;Not yet so loop
-	LD	E,A			;Byte into DE
-	LD	D,00			;
-	LD	HL,0001			;Leave TRUE flag
+	; this char is OK, but is it the end?
+
+;	JR	NC,MATCH_NO_END		;Match & not last, so next chr
+	; we have a match!
+	pop	de		; 4. word to find - discard it
+	pop	hl		; 3. start of dictionary word
+	ld	d,0
+	ld	e,(hl)		; return(2) word header
+	add	hl,bc
+	ld	bc,5
+	add	hl,bc
+	pop	bc		; 1. BC - OK
+	push	hl		; return(3) PFA
+	LD	HL,0001		; return(1) TRUE
 	JP	NEXTS2			;Save both & NEXT
 NO_MATCH:
-	JR	C,END_CHR		;If last chr then jump
-NOT_END_CHR:
-	INC	DE			;Next chr of this vocab word
-	LD	A,(DE)			;Get it
-	OR	A			;Set flags -- and here too
-	JP	P,NOT_END_CHR		;Loop if not end chr
+	; s: BC, dictionary word, word to find; BC: length
+	pop	de		; 4. word to find
+	pop	hl		; 3. start of dictionary word
+	inc	hl
+	add	hl,bc
+	; pop	bc		; 2. length - flags?
+	pop	bc		; 1. BC - OK
+	push	de		; 0. word to find -> needed by COMPARE
+	; s: word to find, HL: LFA
 END_CHR:
-	INC	DE			;Now points to next word vector
-	EX	DE,HL			;Swap
 	LD	E,(HL)			;Vector into DE
 	INC	HL			;
 	LD	D,(HL)			;
 	LD	A,D			;Check it's not last (first) word
 	OR	E			;
+	; s: word to find, DE: next word NFA
 	JR	NZ,COMPARE		;No error so loop
 	POP	HL			;Dump pointer
 	LD	HL,0000			;Flag error
@@ -196,7 +207,7 @@ TEST2:
 	ld	hl,TEST_STACK
 	ld	sp,hl
 	ld	bc,666
-	ld	hl,M_TEST ; sth to find
+	ld	hl,WNAME2 ; sth to find
 	push	hl
 	ld	hl,W_1 ; NFA of W_1
 	push	hl
@@ -531,6 +542,8 @@ TESTS:
 	.word	TEST7
 TESTS_END:
 
+;Test 02 3400 - z inc
+;Test 02 0000 OK +2 
 W_1:
 	.byte 80h+1
 	.byte 'A' + 80h
