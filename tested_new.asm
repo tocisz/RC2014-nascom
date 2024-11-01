@@ -13,10 +13,11 @@ C_FIND:
 COMPARE:
 	POP	HL			;Copy pointer to word we're looking 4
 	push	bc		; 1. BC backup (must be restored before NEXT)
-	LD	A,(DE)			;Get 1st vocabulary word letter
-	AND	3Fh			;Ignore start flag
+	LD	A,(DE)			;Get vocabulary word length+flags
+	AND	3Fh			;Ignore start and immediate flag
 	ld	b,0
-	ld	c,a		; BC is length
+	ld	c,a		; BC is length... not exactly, for smudged it's length+32
+	res	5,c		; clear smudge
 	PUSH	HL		; 2. word to find
 	push	de		; 3. vocabulary word NFA
 	ex	de,hl
@@ -29,14 +30,11 @@ COMPARE:
 	XOR	(HL)			;Compare with what we've got
 	JR	NZ,NO_MATCH		;No match so skip to next word
 MATCH_NO_END:
-	; s: BC, dictionary word, word to find; BC: length, DE: dict word ptr, HL: word ptr
+	; s: BC, dictionary word, word to find; BC: LFA-1, DE: dict word ptr, HL: word ptr
 	; if BC = DE then it's a MATCH
 	ld	a,c
 	xor	e
-	jr	nz,CONTINUE
-	ld	a,b
-	xor	d
-	jr	z,MATCH
+	jr	z,IS_END2 ;  usually it's not the end
 CONTINUE:
 	INC	DE			;Compare next chr
 	INC	HL			;Compare next chr
@@ -45,6 +43,10 @@ CONTINUE:
 	XOR	(HL)			;
 	jr	NZ,NO_MATCH		;No match jump
 	JR	MATCH_NO_END		;Match & not last, so next chr
+IS_END2:
+	ld	a,b
+	xor	d
+	jr	nz,CONTINUE ; if first byte is 0 usually second too
 MATCH:
 	pop	hl		; 3. NFA
 	pop	de		; 2. word to find - discard it
@@ -57,7 +59,7 @@ MATCH:
 	LD	HL,1		; return(1) TRUE
 	JP	NEXTS2			;Save both & NEXT
 NO_MATCH:
-	; s: BC, dictionary word, word to find; BC: length
+	; s: BC, dictionary word, word to find; BC: LFA-1
 	pop	hl		; 3. NFA - discard it
 	pop	de		; 2. word to find
 	inc	bc

@@ -28,6 +28,8 @@ hello.out: hello.o $(SYSTEM_OBJ) $(LD_FILES)
 tests.out: tests.o $(SYSTEM_OBJ) $(LD_FILES)
 	$(LINKER) $(LDFLAGS) -T system.ld -Map=tests.map $< $(SYSTEM_OBJ) -o $@
 
+tests.o: tests.asm tested_original.asm tested_new.asm
+
 %.o: %.asm
 	$(ASSEMBLER) $(ASFLAGS) $< -o $@ > $<.lst
 

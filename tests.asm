@@ -1,14 +1,20 @@
 NL = 0Ah
 SPACE = 20h
 
-REFERENCE_TEST = 1
-COMPATIBILITY_MODE = 1
+REFERENCE_TEST = 0
+COMPATIBILITY_MODE = 0
 
 .section	.text
 MAIN:
 	ld	b,0
 	ld	hl,TESTS
 	push	hl
+
+;	ld	c,0xff
+;	res	5,c
+;	ld	a,c
+;	call	PRHEX
+;	ret
 
 L1:
  	ld	hl,M_TEST
@@ -669,6 +675,7 @@ P_3:
 
 W_4: ; smudged
 	.byte 0A0h+3
+	.ascii "AA"
 .if COMPATIBILITY_MODE
 	.byte 'A'+80h
 .else
