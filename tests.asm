@@ -9,13 +9,6 @@ MAIN:
 	ld	b,0
 	ld	hl,TESTS
 	push	hl
-
-;	ld	c,0xff
-;	res	5,c
-;	ld	a,c
-;	call	PRHEX
-;	ret
-
 L1:
  	ld	hl,M_TEST
 
